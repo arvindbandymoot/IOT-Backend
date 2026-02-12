@@ -1,51 +1,37 @@
 const mqttClient = require('../../config/mqtt')
-const Organization =require('../../models/Organization/Organization')
-const Manager = require('../../models/Organization/Manager')
 const Devies = require('../../models/Organization/Device')
+const { getIO, sendToUser } = require('../../socket/socket')
 
-//const socket = require('../../config/socket')
-const {getIO,sendToUser} = require('../../socket/socket')
-
-mqttClient.on("message",async(topic,message)=>{
+mqttClient.on("message", async (topic, message) => {
     try {
         //Check only status Topic allow endwith status word.
-        if(!topic.endsWith('/status')) return
+        if (!topic.endsWith('/status')) return
 
         //Extract message.
-        const [secret,json] = message.toString().split('|')
-        if(!json) return
+        const [secret, json] = message.toString().split('|')
+        if (!json) return
 
         const data = JSON.parse(json)
+        if (!data) return
 
-        if(!data)return
-        const device = await Devies.findOne({device_code:data.deviceId})
+         /* ===== Secret Validation ===== */
 
-        /* ===== Secret Validation ===== */
+        const device = await Devies.findOne({ device_code: data.deviceId })
+        if (!device) return;
 
-        // getIO().on("connection",async(socket)=>{
 
-        //     const managerId = socket.user._id
+        // Update DB status
+        device.last_status = data.status;
+        device.device_last_seen = new Date();
+        await device.save();
 
-        //     const device = await Devies.findOne({device_code:data.deviceId,device_manager_id:managerId})
-        //     if(!device)return
-        //     console.log("DeviceId:",data.deviceId)  
+        // Send only to that manager
+        sendToUser(device.device_manager_id, "Device_Status", {
+            deviceId: data.deviceId,
+            status: data.status
+        });
 
-        //     getIO().emit("Device_Status",{
-        //     deviceId:data.deviceId,
-        //     status:data.status
-        //     })
-        // })
-        getIO().emit("Device_Status",
-            {
-                deviceId:data.deviceId,
-                status:data.status
-            }
-        )
-        // sendToUser(device.device_manager_id,"Device_Status",{
-        //         deviceId:data.deviceId,
-        //         status:data.status
-        //     })
     } catch (error) {
-        console.log("Mqtt Device Status Error:",error.message)
+        console.log("Mqtt Device Status Error:", error.message)
     }
 })

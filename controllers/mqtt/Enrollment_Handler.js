@@ -3,7 +3,7 @@ const mqttClient = require("../../config/mqtt");
 const User = require("../../models/Organization/User");
 const Devices = require('../../models/Organization/Device')
 const Organization = require('../../models/Organization/Organization')
-const {getIO} = require('../../socket/socket')
+const {getIO,sendToUser} = require('../../socket/socket')
 
 mqttClient.on("message", async (topic, message) => {
   try {
@@ -46,6 +46,7 @@ mqttClient.on("message", async (topic, message) => {
       },
       {
         $set: {
+          "status":"ACTIVE",
           "devices.$.enrollment_id": data.fingerId,
           "devices.$.enrollment_status": "ACTIVE",
           "devices.$.enrollment_at": new Date()
@@ -68,12 +69,13 @@ mqttClient.on("message", async (topic, message) => {
     await device.save()
 
     // Emit socket event (single emit, NOT inside on connection)
-    getIO().emit("Enrollment_Status", {
+
+    sendToUser(device.device_manager_id,"Enrollment_Status",{
+      UserId:user._id,
       name: user.user_name,
       status: "Successfully Enrolled",
-      device: data.deviceId
-    });
-
+      device: device.device_code
+    })
     console.log(
       "✅ User enrolled:",
       user._id,

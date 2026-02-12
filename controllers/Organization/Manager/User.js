@@ -193,6 +193,9 @@ exports.Delete_User = async (req, res) => {
       user.devices = user.devices.filter(
         d => d.device._id.toString() !== deviceId.toString()
       );
+      if(user.devices.length()==0){
+        user.status = "DEACTIVE"
+      }
 
       await user.save();
 
@@ -211,7 +214,7 @@ exports.Delete_User = async (req, res) => {
       });
     }
 
-    //Delete ALL device enrollments
+    //Delete USER FROM ALL device
     for (const d of user.devices) {
       if (!d.enrollment_id) continue;
 
@@ -223,6 +226,7 @@ exports.Delete_User = async (req, res) => {
 
     // Clear all devices
     user.devices = [];
+    user.status="DEACTIVE"
     await user.save();
 
     return res.status(200).json({

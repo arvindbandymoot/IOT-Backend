@@ -3,7 +3,7 @@ const mqttClient = require('../../config/mqtt');
 const Attendance = require("../../models/Organization/Attendance");
 const User = require("../../models/Organization/User");
 const Devices = require('../../models/Organization/Device');
-const {getIO} = require('../../socket/socket')
+const {getIO,sendToUser} = require('../../socket/socket')
 
 const {utcToIST,calculateLateIn,calculateEarlyOut,calculateOverTime,calculateWorkTimeIST}=require('../../utils/DateFromate/GetEndDate')
 
@@ -50,7 +50,6 @@ mqttClient.on("message", async (topic, message) => {
       Device_Id: device._id,
       DateString: dateOnly
     });
-
     //FIRST SCAN → CHECK IN
     if (!attendance) {
       const IN_Time = utcToIST(timeOnly);
@@ -72,11 +71,11 @@ mqttClient.on("message", async (topic, message) => {
 
       console.log(`IN: ${user.user_name} at ${timeOnly}`);
 
-      getIO().emit("Attendance_Status", {
-        name: user.user_name,
-        status: "Check IN"
-      });
-
+       sendToUser(device.device_manager_id,"Attendance_Status",{
+        userId:user._id,
+        name:user.user_name,
+        status:"Check IN"
+      })
       return;
     }
 
@@ -97,15 +96,22 @@ mqttClient.on("message", async (topic, message) => {
 
       console.log(`OUT: ${user.user_name} at ${timeOnly}`);
 
-      getIO().emit("Attendance_Status", {
-        name: user.user_name,
-        status: "Check OUT"
-      });
+      sendToUser(device.device_manager_id,"Attendance_Status",{
+        userId:user._id,
+        name:user.user_name,
+        status:"Check OUT"
+      })
 
       return;
     }
 
     //ALREADY COMPLETED
+    sendToUser(device.device_manager_id,"Attendance_Status",{
+        userId:user._id,
+        name:user.user_name,
+        status:null,
+        message:"User Already Check IN And Check OUT"
+      })
     console.log(`Attendance already completed for ${user.user_name}`);
 
   } catch (err) {

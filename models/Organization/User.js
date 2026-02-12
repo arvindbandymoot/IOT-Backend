@@ -42,6 +42,11 @@ const Users_Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Manager'
     },
+    status:{
+        type:String,
+        enum:["ACTIVE","DEACTIVE"],
+        default:"DEACTIVE"
+    },
     createdBy: {
         type: String,
         default: null

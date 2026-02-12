@@ -20,7 +20,7 @@ exports.OrgAuth = async(req ,res,next)=>{
         next()
     } catch (error) {
         console.log("Internal Server Error:",error)
-        return resizeBy.status(500).json({success:false,message:"Internal Server Error"})
+        return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
 exports.IsOrgAuth = async(req,res,next)=>{
@@ -52,7 +52,7 @@ exports.ManagerAuth = async(req ,res,next)=>{
         next()
     } catch (error) {
         console.log("Internal Server Error:",error)
-        return resizeBy.status(500).json({success:false,message:"Internal Server Error"})
+        return res.status(500).json({success:false,message:"Internal Server Error"})
     }
 }
 exports.IsManagerAuth = async(req,res,next)=>{

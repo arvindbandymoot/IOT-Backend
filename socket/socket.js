@@ -31,7 +31,7 @@ function initSocket(server) {
     console.log("Connected:", socket.user.manager_name);
 
     //Join private room by userId
-    socket.join(socket.user._id);
+    socket.join(socket.user._id.toString());
     console.log("Socket Room ID:", socket.user._id.toString());
 
     socket.on("disconnect", () => {
@@ -46,11 +46,6 @@ function getIO() {
 }
 
 /* ---------- SEND TO SPECIFIC USER ---------- */
-// function sendToUser(userId, event, data) {
-//   if (!io) return;
-//   console.log("Emitting to user:", userId.toString(), event, data);
-//   io.to(userId.toString()).emit(event, data);
-// }
 
 function sendToUser(userId, event, data) {
   if (!io) return;
