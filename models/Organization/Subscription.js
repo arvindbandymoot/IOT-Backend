@@ -9,13 +9,15 @@ const SubscriptionSchema = new mongoose.Schema({
         enum:["Monthly","Yearly"],
         default:"Monthly"
     },
+    amount:{
+        type:Number,
+        required:true,
+    },
     startDate:{
         type:Date,
-        required:true
     },
     endDate:{
         type:Date,
-        required:true
     },
     status:{
         type:String,

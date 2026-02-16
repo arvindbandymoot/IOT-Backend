@@ -107,12 +107,12 @@ exports.GetUsers = async (req, res) => {
         const { deviceId = null } = req.query
         let AllUsers
         if (deviceId) {
-            AllUsers = await User.find({ org_Id: user.org_id, 'devices.device': deviceId }).populate('devices.device').populate('org_Id').populate('manager_Id')
+            AllUsers = await User.find({ org_Id: user.org_id,manager_Id:user._id, 'devices.device': deviceId }).populate('devices.device').populate('org_Id').populate('manager_Id')
         }
         else {
             const deviceIds = await Devices.find({ device_manager_id: user._id }).select('_id')
             AllUsers = await User.find({
-                org_Id: user.org_id,
+                org_Id: user.org_id,manager_Id:user._id,
                 'devices.device': { $in: deviceIds }
             }).populate('devices.device').populate('org_Id').populate('manager_Id')
 

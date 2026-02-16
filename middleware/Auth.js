@@ -10,8 +10,9 @@ exports.OrgAuth = async(req ,res,next)=>{
         if(!token){
             return res.status(400).json({success:false,message:"Token Missing"})
         }
-
+        console.log("Token:",token)
         const decode = jwt.verify(token,process.env.JWT_SECREATE)
+        console.log("Decode:",decode)
         const organization = await Organization.findById(decode.userId)
         if(!organization){
             return res.status(400).json({success:false,message:"Invalid Token"})

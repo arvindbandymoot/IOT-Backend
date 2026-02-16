@@ -17,11 +17,11 @@ exports.Add_Device = async(req ,res)=>{
             return res.status(400).json({success:false,message:"Org Does Not Exist."})
         }
         if(orgDetails.license_key != secret_key){
-            return res.status(400).json({success:false,message:"Secret_Key Does Not Match"}) 
+            return res.status(200).json({success:false,message:"Secret_Key Does Not Match"}) 
         }
 
         // Now Check The Device Already Ragister Or Not .
-        const IsRegister = await Devices.exists({device_name,device_code})
+        const IsRegister = await Devices.exists({device_code})
         if(IsRegister){
             return res.status(400).json({success:false,message:`Device '${device_name+' '+ device_code}' Already Register`})
         }

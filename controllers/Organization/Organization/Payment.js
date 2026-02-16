@@ -8,7 +8,6 @@ exports.createOrder = async (req, res) => {
   try {
     const user = req.user;
     const { amount } = req.body;
-
     const order = await razorpay.orders.create({
       amount: amount * 100,
       currency: "INR",
@@ -25,6 +24,7 @@ exports.createOrder = async (req, res) => {
 
     res.json({
       success: true,
+      message:"Error During Creating Order",
       order
     });
 
@@ -89,3 +89,18 @@ exports.verifyPayment = async (req, res) => {
     res.status(500).json({ success: false });
   }
 };
+
+exports.Get_Payments = async(req,res)=>{
+  try {
+    const user = req.user
+    // Now Fetch The Payment History Of Organization.
+    const payments = await Payment.find({userId:user._id})
+    if(!payments){
+      return res.status(400).json({success:false,message:"Payment Does Not Exist."})
+    }
+    res.status(200).json({success:true,message:"Fetch Payment SuccessFully",data:payments})
+  } catch (error) {
+    console.log("Internal Server Error:",error.message)
+    res.status(500).json({success:false,message:"Internal Server Error"})
+  }
+}

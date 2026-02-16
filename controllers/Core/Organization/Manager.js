@@ -72,7 +72,7 @@ exports.Login_Manager = async(req ,res)=>{
 exports.Manager_Details = async(req,res)=>{
     try {
         const user = req.user
-        const manager = await Manager.findById(user._id)
+        const manager = await Manager.findById(user._id).populate('org_id')
         if(!manager){
             return res.status(400).json({success:false,message:"Manager Details Does Not Exist"})
         }
